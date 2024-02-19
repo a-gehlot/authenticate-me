@@ -6,7 +6,7 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     toSafeObject() {
-      const {id, username, email } = this;
+      const { id, username, email } = this;
       return { id, username, email }
     }
 
@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
 
     static async login({credential, password}) {
       const { Op } = require('sequelize');
-      const user = await User.scope('loginuser').findOne({
+      const user = await User.scope('loginUser').findOne({
         where: {
           [Op.or]: {
             username: credential,
