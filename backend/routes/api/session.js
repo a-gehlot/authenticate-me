@@ -21,12 +21,21 @@ router.post(
             return next(err);
         };
 
-        await setTokenCookie(res, user);
+        setTokenCookie(res, user);
 
         return res.json({
             user
         });
     })
+);
+
+//Log out
+router.delete(
+    '/',
+    (_req, res) => {
+        res.clearCookie('token');
+        return res.json({ message: 'success' });
+    }
 );
 
 module.exports = router;
