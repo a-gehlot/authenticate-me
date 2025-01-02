@@ -1,9 +1,49 @@
 'use strict';
+const bcrypt = require('bcryptjs')
+const validator = require('validator')
+
 const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
+
   class User extends Model {
+    toSafeObject() {
+      const { id, username, email } = this;
+      return { id, username, email }
+    }
+    validatePassword(password) {
+      return bcrypt.compareSync(password, this.hashedPassword.toString());
+    }
+
+    static getCurrentUserById(id) {
+      return User.scope("currentUser").findByPk(id)
+    }
+
+    static async login({ credential, password }) {
+      const { Op } = require('sequelize');
+      const user = await User.scope('loginUser').findOne({
+        where: {
+          [Op.or]: {
+            username: credential,
+            email: credential
+          }
+        }
+      });
+      if (user && user.validatePassword(password)) {
+        return await User.scope('currentUser').findByPk(user.id)
+      }
+    }
+
+    static async signup({ username, email, password }) {
+      const hashedPassword = bcrypt.hashSync(password);
+      const user = await User.create({
+        username,
+        email,
+        hashedPassword,
+      });
+      return await User.scope('currentUser').findByPk(user.id);
+    }
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,7 +53,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  User.init({
+  User.init(
+    {
     username: { 
       type: DataTypes.STRING,
       allowNull: false,
@@ -24,7 +65,8 @@ module.exports = (sequelize, DataTypes) => {
             throw new Error('Only non-email usernames allowed')
           }
         }
-      } },
+      } 
+    },
     email: { 
       type: DataTypes.STRING,
       allowNull: false,
@@ -39,7 +81,9 @@ module.exports = (sequelize, DataTypes) => {
         len: [60, 60]
       }
   }},
-  {
+  { 
+    sequelize,
+    modelName: "User",
     defaultScope: {
       attributes: {
         exclude: ['hashedPassword', 'updatedAt', 'email', 'createdAt']
@@ -55,9 +99,8 @@ module.exports = (sequelize, DataTypes) => {
         attributes: {}
       }
     }
-  }, {
-    sequelize,
-    modelName: 'User',
-  });
+  }
+  );
+  
   return User;
 };
