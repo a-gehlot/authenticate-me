@@ -42,5 +42,3 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 module.exports = db;
-
-console.log('Models in db object:', db);
