@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { thunk } from "redux-thunk";
 import logger from "redux-logger";
+import sessionReducer from "./session";
 
 // Import your slice reducers here
 // import exampleReducer from './exampleSlice';
@@ -8,6 +9,7 @@ import logger from "redux-logger";
 const rootReducer = {
   // Add your slice reducers here
   // example: exampleReducer,
+  session: sessionReducer
 };
 
 const middleware = (getDefaultMiddleware) => {
