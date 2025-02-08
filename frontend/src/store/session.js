@@ -14,6 +14,21 @@ const setUser = (user) => {
     }
 };
 
+export const signupUser = (credentials) => async (dispatch) => {
+    const { username, email, password } = credentials;
+
+    const response = await csrfFetch("/api/users", {
+        method: "POST",
+        body: JSON.stringify({ username, email, password})
+    });
+
+    if (response.ok) {
+        const user = await response.json();
+        dispatch(setUser(user));
+        return user;
+    };
+};
+
 const removerUser = () => {
     return {
         type: REMOVE_USER
@@ -44,7 +59,7 @@ export const logoutUser = () => async (dispatch) => {
     if (response.ok) {
         dispatch(removerUser());
     }
-}
+};
 
 const sessionReducer = (state = initialState, action) => {
     switch(action.type) {
@@ -55,6 +70,6 @@ const sessionReducer = (state = initialState, action) => {
         default:
             return state;
     }
-}
+};
 
 export default sessionReducer;
