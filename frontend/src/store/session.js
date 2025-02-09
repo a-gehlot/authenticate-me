@@ -15,6 +15,7 @@ const setUser = (user) => {
 };
 
 export const signupUser = (credentials) => async (dispatch) => {
+try {
     const { username, email, password } = credentials;
 
     const response = await csrfFetch("/api/users", {
@@ -22,10 +23,15 @@ export const signupUser = (credentials) => async (dispatch) => {
         body: JSON.stringify({ username, email, password})
     });
 
-    if (response.ok) {
-        const user = await response.json();
+    if (!response.ok) {
+        const data = await response.json();
+        throw data;
+    }
+    const user = await response.json();
         dispatch(setUser(user));
         return user;
+    } catch (error) {
+        return error;
     };
 };
 
